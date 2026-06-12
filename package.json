@@ -1,0 +1,17 @@
+{
+  "name": "sonnet-haiku-claude-code-setup",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check scripts/install.mjs && node --check scripts/verify.mjs && node --check scripts/progressive-claude-tests.mjs && node --check scripts/smoke-transparent-launch.mjs",
+    "install": "node scripts/install.mjs",
+    "install:dry": "node scripts/install.mjs --dry-run",
+    "test": "node --test test/*.test.mjs",
+    "test:progressive": "node scripts/progressive-claude-tests.mjs",
+    "test:transparent": "node scripts/smoke-transparent-launch.mjs",
+    "verify": "node scripts/verify.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
