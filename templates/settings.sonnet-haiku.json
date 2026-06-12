@@ -27,5 +27,18 @@
     "prefersReducedMotion": true,
     "autoMemoryEnabled": true,
     "autoDreamEnabled": true
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$HOME/.claude/hooks/sonnet-haiku-routing-reminder.mjs\""
+          }
+        ]
+      }
+    ]
   }
 }

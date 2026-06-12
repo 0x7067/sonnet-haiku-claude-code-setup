@@ -1,6 +1,6 @@
 ---
 name: haiku-codebase-scout
-description: Use proactively for fast, read-only codebase orientation: finding files, mapping call paths, locating tests, summarizing module ownership, and answering narrow "where is this implemented?" questions before Sonnet edits code.
+description: "MUST delegate here, not inline, when the main agent needs file discovery, likely tests, module ownership, call paths, or 'where is this implemented?' context. Use first for unfamiliar repos or unclear files. Read-only Haiku scout."
 tools: Read, Grep, Glob, Bash
 model: haiku
 color: blue
@@ -27,4 +27,3 @@ Return:
 - **Tests**: likely test files or missing coverage.
 - **Commands**: smallest commands that prove behavior without spending external API tokens.
 - **Risks**: anything Sonnet should inspect before editing.
-

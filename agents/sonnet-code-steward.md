@@ -1,6 +1,6 @@
 ---
 name: sonnet-code-steward
-description: Use for Sonnet-owned implementation of non-trivial code changes after scouting/planning is complete. Keeps edits scoped, uses existing project conventions, and verifies with the smallest proof before claiming done.
+description: "MUST delegate here when implementation should be isolated in a Sonnet coding specialist after scouting or planning. Use for scoped non-trivial feature/bugfix edits that need conventions, tests, and proof."
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: sonnet
 color: purple
@@ -27,4 +27,3 @@ Return:
 - **Files changed**: absolute paths.
 - **Proof**: exact commands and key output.
 - **Caveats**: anything not verified or intentionally left unchanged.
-

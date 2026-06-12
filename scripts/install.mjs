@@ -65,6 +65,21 @@ function mergeSettings(settings, template) {
     }
   }
 
+  next.hooks = { ...(next.hooks || {}) };
+  for (const [event, entries] of Object.entries(template.hooks || {})) {
+    const currentEntries = Array.isArray(next.hooks[event]) ? [...next.hooks[event]] : [];
+    for (const entry of entries) {
+      const desiredCommand = entry.hooks?.[0]?.command;
+      const alreadyInstalled = desiredCommand && currentEntries.some((currentEntry) =>
+        (currentEntry.hooks || []).some((hook) => hook.command === desiredCommand)
+      );
+      if (!alreadyInstalled) {
+        currentEntries.push(entry);
+      }
+    }
+    next.hooks[event] = currentEntries;
+  }
+
   next.enabledPlugins = { ...(next.enabledPlugins || {}) };
   for (const plugin of [
     "basic-memory@basicmachines-co",
@@ -135,7 +150,7 @@ async function copyTree(srcDir, destDir) {
     if (!dryRun) {
       await mkdir(path.dirname(dest), { recursive: true });
       await copyFile(src, dest);
-      if (dest.includes(`${path.sep}bin${path.sep}`)) {
+      if (dest.includes(`${path.sep}bin${path.sep}`) || dest.includes(`${path.sep}hooks${path.sep}`)) {
         await chmod(dest, 0o755);
       }
     }
@@ -179,6 +194,7 @@ async function main() {
   await copyTree(path.join(root, "agents"), path.join(claudeDir, "agents"));
   await copyTree(path.join(root, "skills"), path.join(claudeDir, "skills"));
   await copyTree(path.join(root, "bin"), path.join(claudeDir, "bin"));
+  await copyTree(path.join(root, "hooks"), path.join(claudeDir, "hooks"));
 
   if (dryRun) {
     summary.warnings.push("dry run only; no files were written");

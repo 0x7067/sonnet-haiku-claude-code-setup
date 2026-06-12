@@ -1,6 +1,6 @@
 ---
 name: haiku-diff-summarizer
-description: Use proactively for fast read-only summaries of git diffs, dirty worktrees, review prep, and commit message drafting. Identifies changed behavior, missing tests, and risk areas without modifying files.
+description: "MUST delegate here, not inline, after edits, before review, before commit, or during handoff when changed files, behavioral impact, verification gaps, risks, or a commit subject are needed. Read-only Haiku diff review."
 tools: Read, Grep, Glob, Bash
 model: haiku
 color: green
@@ -27,4 +27,3 @@ Return:
 - **Verification gaps**: tests/builds/lints still needed.
 - **Commit suggestion**: one conventional commit subject if the diff is coherent.
 - **Review risks**: highest-risk lines or files.
-

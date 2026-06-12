@@ -22,6 +22,7 @@ const expectedAgents = [
 ];
 const expectedBins = ["cc-sonnet", "cc-sonnet-1m", "cc-haiku", "cc-plan"];
 const expectedSkill = path.join(claudeDir, "skills", "sonnet-haiku-code", "SKILL.md");
+const expectedHook = path.join(claudeDir, "hooks", "sonnet-haiku-routing-reminder.mjs");
 const globalInstructionsPath = path.join(claudeDir, "CLAUDE.md");
 const failures = [];
 const warnings = [];
@@ -39,6 +40,15 @@ function frontmatterModel(text) {
   }
   const modelLine = match[1].split("\n").find((line) => line.startsWith("model:"));
   return modelLine ? modelLine.replace(/^model:\s*/, "").trim() : null;
+}
+
+function frontmatterDescription(text) {
+  const match = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) {
+    return "";
+  }
+  const line = match[1].split("\n").find((item) => item.startsWith("description:"));
+  return line ? line.replace(/^description:\s*/, "").trim().replace(/^"|"$/g, "") : "";
 }
 
 function check(condition, message) {
@@ -88,14 +98,31 @@ async function main() {
   check(settings.env?.ANTHROPIC_DEFAULT_FABLE_MODEL === template.env.ANTHROPIC_DEFAULT_FABLE_MODEL, "installed settings should map Fable alias to Sonnet");
   check(settings.env?.CLAUDE_CODE_SUBAGENT_MODEL === "inherit", "installed settings should keep subagent model inherit");
   check(settings.env?.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE === "80", "installed settings should keep autocompact late enough for subagent-heavy tasks");
+  const userPromptHooks = settings.hooks?.UserPromptSubmit || [];
+  check(
+    userPromptHooks.some((entry) =>
+      (entry.hooks || []).some((hook) => hook.command === "node \"$HOME/.claude/hooks/sonnet-haiku-routing-reminder.mjs\"")
+    ),
+    "installed settings missing Sonnet/Haiku UserPromptSubmit routing reminder hook"
+  );
 
   for (const fileName of expectedAgents) {
-    check(existsSync(path.join(claudeDir, "agents", fileName)), `missing installed agent ${fileName}`);
+    const agentPath = path.join(claudeDir, "agents", fileName);
+    check(existsSync(agentPath), `missing installed agent ${fileName}`);
+    if (existsSync(agentPath)) {
+      const text = await readFile(agentPath, "utf8");
+      const description = frontmatterDescription(text).toLowerCase();
+      check(
+        /(must delegate|use first|use before|use after edits)/.test(description),
+        `installed agent ${fileName} description should contain a strong delegation trigger`
+      );
+    }
   }
   for (const fileName of expectedBins) {
     check(existsSync(path.join(claudeDir, "bin", fileName)), `missing installed helper ${fileName}`);
   }
   check(existsSync(expectedSkill), "missing installed sonnet-haiku-code skill");
+  check(existsSync(expectedHook), "missing installed sonnet-haiku routing reminder hook");
 
   const agentFiles = (await readdir(path.join(claudeDir, "agents"))).filter((fileName) => fileName.endsWith(".md"));
   for (const fileName of agentFiles) {
@@ -115,7 +142,8 @@ async function main() {
 
   for (const filePath of [
     path.join(root, "scripts", "install.mjs"),
-    path.join(root, "scripts", "verify.mjs")
+    path.join(root, "scripts", "verify.mjs"),
+    path.join(root, "hooks", "sonnet-haiku-routing-reminder.mjs")
   ]) {
     const result = run("node", ["--check", filePath]);
     check(result.status === 0, `syntax check failed for ${filePath}`);

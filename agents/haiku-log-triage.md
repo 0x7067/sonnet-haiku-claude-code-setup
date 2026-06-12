@@ -1,6 +1,6 @@
 ---
 name: haiku-log-triage
-description: Use proactively for fast read-only triage of test output, CI logs, build logs, stack traces, and noisy command output. Clusters failures, identifies the first meaningful error, and recommends the smallest next proof.
+description: "MUST delegate here, not inline, after a failing or noisy command: tests, CI, build logs, stack traces, compiler errors, or truncated output. Use before fixing when the first meaningful failure is not obvious. Read-only Haiku triage."
 tools: Read, Grep, Glob, Bash
 model: haiku
 color: cyan
@@ -27,4 +27,3 @@ Return:
 - **Noise/downstream failures**: repeated or secondary errors.
 - **Next proof**: the smallest command to confirm the cause.
 - **Files to inspect**: paths mentioned by the log or likely owners.
-

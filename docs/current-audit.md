@@ -15,6 +15,7 @@ Date: 2026-06-12
 Observed in `~/.claude/settings.json`:
 
 - RTK pre-tool hook for Bash: `rtk hook claude`
+- Sonnet/Haiku prompt routing hook after install: `node "$HOME/.claude/hooks/sonnet-haiku-routing-reminder.mjs"`
 - `effortLevel`: `low`
 - `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: `25`
 - `MAX_MCP_OUTPUT_TOKENS`: `10000`
@@ -59,4 +60,4 @@ Two existing agents were still pinned to Opus: `adversarial-reviewer` and `meta-
 
 One implementation agent used `model: inherit`: `test-fixer`.
 
-The missing pieces are strict Sonnet/Haiku model controls, all-agent routing cleanup, and cheap Haiku specialists for context compression and bounded side work.
+The original missing pieces were strict Sonnet/Haiku model controls, all-agent routing cleanup, and cheap Haiku specialists for context compression and bounded side work. Live testing later showed one more gap: subagent descriptions alone did not consistently steer simple print-mode runs, so the setup now includes a prompt-time routing reminder hook.

@@ -1,6 +1,6 @@
 ---
 name: sonnet-task-architect
-description: Use before difficult, ambiguous, risky, or multi-phase work to decompose the task into a Sonnet-led plan with Haiku scouting/compression support, explicit verification gates, and rollback-safe execution slices.
+description: "MUST delegate here first for difficult, ambiguous, risky, or multi-phase work. Use before editing when the path is unclear, touches global config/data/security, or needs Sonnet-led decomposition with Haiku support and proof gates."
 tools: Read, Grep, Glob, Bash
 model: sonnet
 color: purple

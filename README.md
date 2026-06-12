@@ -32,6 +32,9 @@ It is designed for Pedro's current Claude Code install:
   - `sonnet-task-architect`
 - User-level skill:
   - `sonnet-haiku-code`
+- User prompt hook:
+  - `hooks/sonnet-haiku-routing-reminder.mjs`
+  - Injects a short routing reminder for coding prompts so matching subagent descriptions steer the main agent before it starts scouting, fixing, or reviewing inline.
 - Launch helpers:
   - `bin/cc-sonnet`
   - `bin/cc-sonnet-1m`
@@ -74,7 +77,7 @@ Start Claude Code normally:
 claude
 ```
 
-The global `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, user agents, and `sonnet-haiku-code` skill are loaded automatically. The normal launch path starts on Sonnet, keeps fallback inside Sonnet/Haiku, and leaves each subagent's frontmatter model in control.
+The global `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, user agents, `sonnet-haiku-code` skill, and prompt-time routing reminder are loaded automatically. The normal launch path starts on Sonnet, keeps fallback inside Sonnet/Haiku, and leaves each subagent's frontmatter model in control.
 
 The helper commands are optional shortcuts, not required for daily use. Start an explicit Sonnet session:
 

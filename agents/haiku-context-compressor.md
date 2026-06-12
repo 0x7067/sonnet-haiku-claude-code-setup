@@ -1,6 +1,6 @@
 ---
 name: haiku-context-compressor
-description: Use proactively for cheap, read-only compression of large context: long plans, issue threads, logs, transcripts, file inventories, and broad search results. Produces a compact evidence map for Sonnet before difficult implementation or review work.
+description: "MUST delegate here, not inline, when raw context is too large: long plans, logs, transcripts, issue/PR threads, file inventories, or broad searches. Use before Sonnet decides or edits. Returns a compact evidence map."
 tools: Read, Grep, Glob, Bash
 model: haiku
 color: green

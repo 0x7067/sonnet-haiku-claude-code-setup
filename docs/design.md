@@ -32,6 +32,16 @@ Add Sonnet coordinators:
 - `sonnet-code-steward`: implementation owner for multi-file code work that should remain on Sonnet.
 - `sonnet-task-architect`: hard-task decomposition, verification matrix, and handoff plans before implementation.
 
+Agent names and descriptions are written as routing triggers, not passive summaries. The bundle also installs a `UserPromptSubmit` hook that injects a short reminder for coding prompts:
+
+- unfamiliar repo orientation -> `haiku-codebase-scout`
+- hard/ambiguous/risky work -> `sonnet-task-architect`
+- failing/noisy command output -> `haiku-log-triage`
+- large raw context -> `haiku-context-compressor`
+- after edits / before review or commit -> `haiku-diff-summarizer`
+
+The hook exists because live testing showed description-only steering was not enough for simple `claude -p` runs; the main model would still inline orientation and small fixes.
+
 Convert existing global agents:
 
 - `adversarial-reviewer`: Opus to Sonnet. Its rigor should come from concrete failure hypotheses and read-only proof, not raw model escalation.
@@ -51,8 +61,9 @@ The installer is reversible and additive:
 - Back up `~/.claude/settings.json`.
 - Back up `~/.claude/CLAUDE.md` before appending the routing block.
 - Merge model controls and env model pins into the existing settings object.
+- Merge the prompt-time routing reminder hook into `hooks.UserPromptSubmit` without removing existing hooks.
 - Fill only missing low-risk defaults for speed and readability.
-- Copy agents, skill files, and launch helpers.
+- Copy agents, skill files, hook files, and launch helpers.
 - Skip existing conflicting files unless `--force` is passed.
 - Never delete files.
 
@@ -66,5 +77,6 @@ Verification avoids Claude API token spend. It checks:
 - Expected `model`, `availableModels`, and `fallbackModel`.
 - Expected env pins.
 - Expected copied agents and skill.
+- Expected prompt-time routing reminder hook.
 - Expected launch helpers.
 - Local Claude version, plugin list, and MCP list.
