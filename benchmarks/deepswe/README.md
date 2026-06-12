@@ -34,8 +34,10 @@ The script:
 
 - reads the Claude Code OAuth access token from macOS Keychain into a temporary
   file at runtime, then removes that file on exit;
-- uploads the token as a container-local file read by a small Claude shim,
-  avoiding host-visible `docker compose exec -e TOKEN=...` process arguments;
+- uploads the token as `/tmp/claude-code-oauth-token` inside the container,
+  read by a small Claude shim, avoiding host-visible
+  `docker compose exec -e TOKEN=...` process arguments and Pier's downloaded
+  `agent/sessions` artifacts;
 - injects `~/.claude/agents`, `~/.claude/skills`, `~/.claude/hooks`,
   a benchmark-safe subset of `~/.claude/settings.json`, and
   `~/.claude/CLAUDE.md` into Pier's per-trial `CLAUDE_CONFIG_DIR`;

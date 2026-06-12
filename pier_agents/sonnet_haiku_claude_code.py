@@ -107,20 +107,20 @@ class SonnetHaikuClaudeCode(ClaudeCode):
 
     async def _upload_oauth_token_file(
         self, environment: BaseEnvironment, config_dir: str
-    ) -> bool:
+    ) -> str | None:
         token_file = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN_FILE")
         token_value = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN")
-        target = f"{config_dir}/.oauth-token"
+        target = "/tmp/claude-code-oauth-token"
 
         if token_file and Path(token_file).is_file():
             await environment.upload_file(Path(token_file), target)
             await self.exec_as_agent(
                 environment, command=f"chmod 600 {shlex.quote(target)}"
             )
-            return True
+            return target
 
         if not token_value:
-            return False
+            return None
 
         with tempfile.TemporaryDirectory(prefix="pier-claude-oauth-") as tmp:
             materialized = Path(tmp) / "oauth-token"
@@ -130,12 +130,12 @@ class SonnetHaikuClaudeCode(ClaudeCode):
             await self.exec_as_agent(
                 environment, command=f"chmod 600 {shlex.quote(target)}"
             )
-            return True
+            return target
 
     async def _install_oauth_file_wrapper(
-        self, environment: BaseEnvironment, config_dir: str
+        self, environment: BaseEnvironment, token_file: str
     ) -> None:
-        token_path = shlex.quote(f"{config_dir}/.oauth-token")
+        token_path = shlex.quote(token_file)
         command = f"""set -euo pipefail
 mkdir -p "$HOME/.local/bin"
 if [ -x "$HOME/.local/bin/claude" ] && [ ! -e "$HOME/.local/bin/claude-real" ]; then
@@ -188,9 +188,9 @@ chmod 700 "$HOME/.local/bin/claude"
             environment, host_claude / "CLAUDE.md", f"{config_dir}/CLAUDE.md"
         )
 
-        token_was_uploaded = await self._upload_oauth_token_file(environment, config_dir)
-        if token_was_uploaded:
-            await self._install_oauth_file_wrapper(environment, config_dir)
+        uploaded_token_file = await self._upload_oauth_token_file(environment, config_dir)
+        if uploaded_token_file:
+            await self._install_oauth_file_wrapper(environment, uploaded_token_file)
 
         previous_oauth_token = os.environ.pop("CLAUDE_CODE_OAUTH_TOKEN", None)
         previous_extra_oauth_token = self._extra_env.pop(

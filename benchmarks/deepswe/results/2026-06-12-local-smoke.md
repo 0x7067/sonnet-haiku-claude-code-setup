@@ -64,8 +64,10 @@ Useful evidence:
   toggles.
 - Pier's stock Claude Code path passes OAuth credentials through process
   environment arguments visible to local process listings. The wrapper now
-  uploads the OAuth token as a temporary container-local file and installs a
-  tiny in-container Claude shim that reads it at process start.
+  uploads the OAuth token to `/tmp/claude-code-oauth-token` inside the
+  container and installs a tiny in-container Claude shim that reads it at
+  process start, keeping it out of Pier's downloaded `agent/sessions`
+  artifacts.
 
 ## Not Overfit
 
