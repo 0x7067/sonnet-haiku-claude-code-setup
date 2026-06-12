@@ -32,7 +32,7 @@ test("defaultClaudeDir uses USERPROFILE on Windows when HOME is absent", () => {
   assert.equal(claudeDir, path.win32.join("C:\\Users\\teammate", ".claude"));
 });
 
-test("mergeSettings installs an absolute hook command for Windows paths", () => {
+test("mergeSettings installs a runtime-resolved hook command", () => {
   const claudeDir = "C:\\Users\\teammate\\.claude";
   const next = mergeSettings(
     {},
@@ -54,11 +54,12 @@ test("mergeSettings installs an absolute hook command for Windows paths", () => 
     { claudeDir, pathModule: path.win32 }
   );
 
-  assert.equal(
-    next.hooks.UserPromptSubmit[0].hooks[0].command,
-    buildHookCommand(claudeDir, path.win32)
-  );
-  assert.equal(next.hooks.UserPromptSubmit[0].hooks[0].command.includes("$HOME"), false);
+  const command = next.hooks.UserPromptSubmit[0].hooks[0].command;
+  assert.equal(command, buildHookCommand());
+  assert.equal(command.includes(claudeDir), false);
+  assert.equal(command.includes("C:\\Users"), false);
+  assert.equal(command.includes("CLAUDE_CONFIG_DIR"), true);
+  assert.equal(command.includes("sonnet-haiku-routing-reminder.mjs"), true);
 });
 
 test("mergeSettings replaces stale HOME hook commands instead of duplicating them", () => {
@@ -101,7 +102,7 @@ test("mergeSettings replaces stale HOME hook commands instead of duplicating the
     (entry.hooks || []).map((hook) => hook.command)
   );
 
-  assert.deepEqual(commands, [buildHookCommand(claudeDir, path.win32)]);
+  assert.deepEqual(commands, [buildHookCommand()]);
 });
 
 test("mergeSettings enables only the shareable default plugins", () => {

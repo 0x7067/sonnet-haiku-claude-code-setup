@@ -99,7 +99,7 @@ async function main() {
   const userPromptHooks = settings.hooks?.UserPromptSubmit || [];
   check(
     userPromptHooks.some((entry) =>
-      (entry.hooks || []).some((hook) => hook.command === buildHookCommand(claudeDir))
+      (entry.hooks || []).some((hook) => hook.command === buildHookCommand())
     ),
     "installed settings missing Sonnet/Haiku UserPromptSubmit routing reminder hook"
   );

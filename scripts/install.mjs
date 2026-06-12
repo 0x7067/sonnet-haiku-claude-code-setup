@@ -57,13 +57,18 @@ export function defaultClaudeDir({
   return pathModule.join(home, ".claude");
 }
 
-export function buildHookCommand(claudeConfigDir, pathModule = path) {
-  const hookPath = pathModule.join(
-    claudeConfigDir,
-    "hooks",
-    "sonnet-haiku-routing-reminder.mjs"
-  );
-  return `node ${JSON.stringify(hookPath)}`;
+export function buildHookCommand() {
+  const runner = [
+    "const { spawnSync } = require('node:child_process');",
+    "const { join } = require('node:path');",
+    "const { homedir } = require('node:os');",
+    "const home = process.platform === 'win32' ? process.env.USERPROFILE || process.env.HOME || homedir() : process.env.HOME || homedir();",
+    "const dir = process.env.CLAUDE_CONFIG_DIR || join(home, '.claude');",
+    "const hook = join(dir, 'hooks', 'sonnet-haiku-routing-reminder.mjs');",
+    "const result = spawnSync(process.execPath, [hook], { stdio: 'inherit' });",
+    "process.exit(result.status ?? (result.error ? 1 : 0));"
+  ].join(" ");
+  return `node -e ${JSON.stringify(runner)}`;
 }
 
 function isSonnetHaikuHookCommand(command) {
@@ -72,8 +77,6 @@ function isSonnetHaikuHookCommand(command) {
 }
 
 export function mergeSettings(settings, template, options = {}) {
-  const pathModule = options.pathModule || path;
-  const targetClaudeDir = options.claudeDir || claudeDir;
   const next = structuredClone(settings);
   next.model = template.model;
   next.advisorModel = template.advisorModel;
@@ -115,7 +118,7 @@ export function mergeSettings(settings, template, options = {}) {
         }
         return {
           ...hook,
-          command: buildHookCommand(targetClaudeDir, pathModule)
+          command: buildHookCommand()
         };
       });
       const desiredCommand = desiredEntry.hooks?.[0]?.command;

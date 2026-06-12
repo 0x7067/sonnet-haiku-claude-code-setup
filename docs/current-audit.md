@@ -4,10 +4,10 @@ Date: 2026-06-12
 
 ## Local State
 
-- Workspace: `/Users/pedro/Documents/Codex/2026-06-12/a-highly-opinionated-and-optimized-claude-3`
+- Workspace: this repository checkout
 - Workspace contents before this bundle: empty
 - Git status before this bundle: not a git repository
-- Claude Code binary: `/Users/pedro/.local/bin/claude`
+- Claude Code binary: `claude`
 - Claude Code version: `2.1.175`
 
 ## Existing User Settings Signals

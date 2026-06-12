@@ -39,5 +39,5 @@ Haiku owns bounded read-only support packets: scouting, compression, noisy-outpu
 ## Current Audit Command
 
 ```bash
-node -e "const fs=require('fs'); const dir='/Users/pedro/.claude/agents'; for (const f of fs.readdirSync(dir).filter(f=>f.endsWith('.md')).sort()) { const t=fs.readFileSync(dir+'/'+f,'utf8'); const m=t.match(/^---\n([\s\S]*?)\n---/); const model=(m&&m[1].split('\n').find(l=>l.startsWith('model:'))||'model: missing').replace(/^model:\s*/,''); console.log(f+': '+model); }"
+node -e "const fs=require('fs'); const path=require('path'); const os=require('os'); const home=process.platform==='win32' ? process.env.USERPROFILE || process.env.HOME || os.homedir() : process.env.HOME || os.homedir(); const dir=path.join(process.env.CLAUDE_CONFIG_DIR || path.join(home,'.claude'),'agents'); for (const f of fs.readdirSync(dir).filter(f=>f.endsWith('.md')).sort()) { const t=fs.readFileSync(path.join(dir,f),'utf8'); const m=t.match(/^---\n([\s\S]*?)\n---/); const model=(m&&m[1].split('\n').find(l=>l.startsWith('model:'))||'model: missing').replace(/^model:\s*/,''); console.log(f+': '+model); }"
 ```
