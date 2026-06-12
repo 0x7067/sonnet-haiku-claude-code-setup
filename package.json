@@ -10,6 +10,10 @@
     "test:progressive": "node scripts/progressive-claude-tests.mjs",
     "test:routing": "node scripts/smoke-description-routing.mjs",
     "test:transparent": "node scripts/smoke-transparent-launch.mjs",
+    "deepswe:ensure": "scripts/ensure-deepswe.sh",
+    "deepswe:oracle": "scripts/run-deepswe-oracle-smoke.sh",
+    "deepswe:smoke": "DEEPSWE_TASKS=1 DEEPSWE_CONCURRENCY=1 DEEPSWE_SAMPLE_SEED=0 scripts/run-deepswe-sonnet-haiku.sh --agent-timeout-multiplier 0.05 --agent-setup-timeout-multiplier 0.2 --ak max_budget_usd=1.00",
+    "deepswe:run": "scripts/run-deepswe-sonnet-haiku.sh",
     "tbench:smoke": "TBENCH_TASKS=1 TBENCH_CONCURRENCY=1 scripts/run-terminal-bench-sonnet-haiku.sh --ak max_budget_usd=5.00",
     "verify": "node scripts/verify.mjs"
   },

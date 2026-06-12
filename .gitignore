@@ -7,3 +7,5 @@ dist/
 coverage/
 reports/
 jobs/
+__pycache__/
+benchmarks/deepswe/vendor/

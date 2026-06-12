@@ -111,6 +111,30 @@ Inside Claude Code, invoke:
 
 That skill tells Claude to keep Sonnet on the main implementation path while pushing read-only scouting, log triage, and diff summaries to Haiku agents.
 
+## Benchmarks
+
+DeepSWE is the primary benchmark harness in this repo. It uses Pier and keeps
+the DeepSWE corpus under ignored `benchmarks/deepswe/vendor/`.
+
+Run an oracle Docker smoke without spending Claude usage:
+
+```bash
+npm run deepswe:oracle
+```
+
+Run one bounded Claude Code subscription smoke through the Sonnet/Haiku wrapper:
+
+```bash
+npm run deepswe:smoke
+```
+
+The wrapper injects the installed global `~/.claude` agents, skills, prompt
+routing hook, model routing settings, and instructions into Pier's per-trial
+`CLAUDE_CONFIG_DIR`, so the benchmark exercises the same Sonnet/Haiku routing
+used by normal `claude` launches. Host-only UI, plugin, and memory toggles are
+stripped for benchmark containers. Terminal-Bench notes remain in
+`docs/terminal-bench.md` as secondary history.
+
 ## Scope
 
 This is a personal global Claude Code setup. It installs under `~/.claude` and does not require admin permissions. Enterprise managed settings can enforce policy above user/project scope, but that is deliberately out of scope for this bundle.
