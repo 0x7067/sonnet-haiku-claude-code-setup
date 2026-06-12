@@ -10,6 +10,7 @@
     "test:progressive": "node scripts/progressive-claude-tests.mjs",
     "test:routing": "node scripts/smoke-description-routing.mjs",
     "test:transparent": "node scripts/smoke-transparent-launch.mjs",
+    "tbench:smoke": "TBENCH_TASKS=1 TBENCH_CONCURRENCY=1 scripts/run-terminal-bench-sonnet-haiku.sh --ak max_budget_usd=5.00",
     "verify": "node scripts/verify.mjs"
   },
   "engines": {
