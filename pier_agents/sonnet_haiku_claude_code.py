@@ -114,7 +114,9 @@ class SonnetHaikuClaudeCode(ClaudeCode):
 
         if token_file and Path(token_file).is_file():
             await environment.upload_file(Path(token_file), target)
-            await self.exec_as_agent(environment, command=f"chmod 600 {shlex.quote(target)}")
+            await self.exec_as_agent(
+                environment, command=f"chmod 600 {shlex.quote(target)}"
+            )
             return True
 
         if not token_value:
@@ -125,7 +127,9 @@ class SonnetHaikuClaudeCode(ClaudeCode):
             materialized.write_text(token_value, encoding="utf-8")
             materialized.chmod(0o600)
             await environment.upload_file(materialized, target)
-            await self.exec_as_agent(environment, command=f"chmod 600 {shlex.quote(target)}")
+            await self.exec_as_agent(
+                environment, command=f"chmod 600 {shlex.quote(target)}"
+            )
             return True
 
     async def _install_oauth_file_wrapper(
@@ -189,8 +193,13 @@ chmod 700 "$HOME/.local/bin/claude"
             await self._install_oauth_file_wrapper(environment, config_dir)
 
         previous_oauth_token = os.environ.pop("CLAUDE_CODE_OAUTH_TOKEN", None)
+        previous_extra_oauth_token = self._extra_env.pop(
+            "CLAUDE_CODE_OAUTH_TOKEN", None
+        )
         try:
             await super().run(instruction, environment, context)
         finally:
             if previous_oauth_token is not None:
                 os.environ["CLAUDE_CODE_OAUTH_TOKEN"] = previous_oauth_token
+            if previous_extra_oauth_token is not None:
+                self._extra_env["CLAUDE_CODE_OAUTH_TOKEN"] = previous_extra_oauth_token
