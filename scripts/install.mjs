@@ -3,14 +3,13 @@ import { chmod, copyFile, mkdir, readFile, readdir, writeFile } from "node:fs/pr
 import { existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = new Set(process.argv.slice(2));
 const dryRun = args.has("--dry-run");
 const force = args.has("--force");
-const home = process.env.HOME || os.homedir();
-const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(home, ".claude");
+const claudeDir = defaultClaudeDir();
 const settingsPath = path.join(claudeDir, "settings.json");
 const claudeMdPath = path.join(claudeDir, "CLAUDE.md");
 const templatePath = path.join(root, "templates", "settings.sonnet-haiku.json");
@@ -43,7 +42,38 @@ async function readJson(filePath, fallback) {
   return JSON.parse(text);
 }
 
-function mergeSettings(settings, template) {
+export function defaultClaudeDir({
+  env = process.env,
+  homedir = os.homedir,
+  platform = process.platform
+} = {}) {
+  if (env.CLAUDE_CONFIG_DIR) {
+    return env.CLAUDE_CONFIG_DIR;
+  }
+  const home = platform === "win32"
+    ? env.USERPROFILE || env.HOME || homedir()
+    : env.HOME || homedir();
+  const pathModule = platform === "win32" ? path.win32 : path;
+  return pathModule.join(home, ".claude");
+}
+
+export function buildHookCommand(claudeConfigDir, pathModule = path) {
+  const hookPath = pathModule.join(
+    claudeConfigDir,
+    "hooks",
+    "sonnet-haiku-routing-reminder.mjs"
+  );
+  return `node ${JSON.stringify(hookPath)}`;
+}
+
+function isSonnetHaikuHookCommand(command) {
+  return typeof command === "string"
+    && command.includes("sonnet-haiku-routing-reminder.mjs");
+}
+
+export function mergeSettings(settings, template, options = {}) {
+  const pathModule = options.pathModule || path;
+  const targetClaudeDir = options.claudeDir || claudeDir;
   const next = structuredClone(settings);
   next.model = template.model;
   next.advisorModel = template.advisorModel;
@@ -67,14 +97,33 @@ function mergeSettings(settings, template) {
 
   next.hooks = { ...(next.hooks || {}) };
   for (const [event, entries] of Object.entries(template.hooks || {})) {
-    const currentEntries = Array.isArray(next.hooks[event]) ? [...next.hooks[event]] : [];
+    const currentEntries = Array.isArray(next.hooks[event])
+      ? next.hooks[event]
+        .map((currentEntry) => ({
+          ...currentEntry,
+          hooks: (currentEntry.hooks || []).filter((hook) =>
+            !isSonnetHaikuHookCommand(hook.command)
+          )
+        }))
+        .filter((currentEntry) => (currentEntry.hooks || []).length > 0)
+      : [];
     for (const entry of entries) {
-      const desiredCommand = entry.hooks?.[0]?.command;
+      const desiredEntry = structuredClone(entry);
+      desiredEntry.hooks = (desiredEntry.hooks || []).map((hook) => {
+        if (hook.type !== "command") {
+          return hook;
+        }
+        return {
+          ...hook,
+          command: buildHookCommand(targetClaudeDir, pathModule)
+        };
+      });
+      const desiredCommand = desiredEntry.hooks?.[0]?.command;
       const alreadyInstalled = desiredCommand && currentEntries.some((currentEntry) =>
         (currentEntry.hooks || []).some((hook) => hook.command === desiredCommand)
       );
       if (!alreadyInstalled) {
-        currentEntries.push(entry);
+        currentEntries.push(desiredEntry);
       }
     }
     next.hooks[event] = currentEntries;
@@ -150,7 +199,10 @@ async function copyTree(srcDir, destDir) {
     if (!dryRun) {
       await mkdir(path.dirname(dest), { recursive: true });
       await copyFile(src, dest);
-      if (dest.includes(`${path.sep}bin${path.sep}`) || dest.includes(`${path.sep}hooks${path.sep}`)) {
+      if (
+        process.platform !== "win32"
+        && (dest.includes(`${path.sep}bin${path.sep}`) || dest.includes(`${path.sep}hooks${path.sep}`))
+      ) {
         await chmod(dest, 0o755);
       }
     }
@@ -161,7 +213,7 @@ async function main() {
   const template = await readJson(templatePath, {});
   const claudeMdTemplate = await readFile(claudeMdTemplatePath, "utf8");
   const current = await readJson(settingsPath, {});
-  const next = mergeSettings(current, template);
+  const next = mergeSettings(current, template, { claudeDir });
   const currentText = stableJson(current);
   const nextText = stableJson(next);
 
@@ -203,7 +255,9 @@ async function main() {
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.stack : String(error));
-  process.exitCode = 1;
-});
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.stack : String(error));
+    process.exitCode = 1;
+  });
+}

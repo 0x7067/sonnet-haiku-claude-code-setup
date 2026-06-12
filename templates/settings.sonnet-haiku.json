@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$HOME/.claude/hooks/sonnet-haiku-routing-reminder.mjs\""
+          "command": "__SONNET_HAIKU_ROUTING_HOOK__"
           }
         ]
       }

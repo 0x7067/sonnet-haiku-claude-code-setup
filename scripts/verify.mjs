@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { buildHookCommand, defaultClaudeDir } from "./install.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const home = process.env.HOME || os.homedir();
-const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(home, ".claude");
+const claudeDir = defaultClaudeDir();
 const settingsPath = path.join(claudeDir, "settings.json");
 const templatePath = path.join(root, "templates", "settings.sonnet-haiku.json");
 const claudeMdTemplatePath = path.join(root, "templates", "CLAUDE.sonnet-haiku.md");
@@ -20,7 +19,20 @@ const expectedAgents = [
   "sonnet-task-architect.md",
   "sonnet-code-steward.md"
 ];
-const expectedBins = ["cc-sonnet", "cc-sonnet-1m", "cc-haiku", "cc-plan"];
+const expectedBins = [
+  "cc-sonnet",
+  "cc-sonnet-1m",
+  "cc-haiku",
+  "cc-plan",
+  "cc-sonnet.ps1",
+  "cc-sonnet-1m.ps1",
+  "cc-haiku.ps1",
+  "cc-plan.ps1",
+  "cc-sonnet.cmd",
+  "cc-sonnet-1m.cmd",
+  "cc-haiku.cmd",
+  "cc-plan.cmd"
+];
 const expectedSkill = path.join(claudeDir, "skills", "sonnet-haiku-code", "SKILL.md");
 const expectedHook = path.join(claudeDir, "hooks", "sonnet-haiku-routing-reminder.mjs");
 const globalInstructionsPath = path.join(claudeDir, "CLAUDE.md");
@@ -101,7 +113,7 @@ async function main() {
   const userPromptHooks = settings.hooks?.UserPromptSubmit || [];
   check(
     userPromptHooks.some((entry) =>
-      (entry.hooks || []).some((hook) => hook.command === "node \"$HOME/.claude/hooks/sonnet-haiku-routing-reminder.mjs\"")
+      (entry.hooks || []).some((hook) => hook.command === buildHookCommand(claudeDir))
     ),
     "installed settings missing Sonnet/Haiku UserPromptSubmit routing reminder hook"
   );
@@ -154,12 +166,18 @@ async function main() {
 
   const plugins = run("claude", ["plugin", "list"]);
   check(plugins.status === 0, "claude plugin list failed");
-  check((plugins.stdout || "").includes("basic-memory@basicmachines-co"), "basic-memory plugin not listed");
-  check((plugins.stdout || "").includes("superpowers@claude-plugins-official"), "superpowers plugin not listed");
+  if (plugins.status === 0 && !(plugins.stdout || "").includes("basic-memory@basicmachines-co")) {
+    warnings.push("basic-memory plugin not listed; install it separately if you want memory-backed workflows");
+  }
+  if (plugins.status === 0 && !(plugins.stdout || "").includes("superpowers@claude-plugins-official")) {
+    warnings.push("superpowers plugin not listed; install it separately if you want the bundled methodology workflows");
+  }
 
   const mcp = run("claude", ["mcp", "list"], { timeout: 45000 });
   check(mcp.status === 0, "claude mcp list failed");
-  check((mcp.stdout || "").includes("basic-memory"), "basic-memory MCP not listed");
+  if (mcp.status === 0 && !(mcp.stdout || "").includes("basic-memory")) {
+    warnings.push("basic-memory MCP not listed; memory instructions need a configured Basic Memory MCP");
+  }
 
   const report = {
     verdict: failures.length === 0 ? "PASS" : "FAIL",

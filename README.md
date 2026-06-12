@@ -2,7 +2,8 @@
 
 This bundle makes Claude Code run as a Sonnet-first daily coding environment with Haiku used for cheap, fast side work: codebase scouting, log triage, diff summaries, and quick print-mode tasks.
 
-It is designed for Pedro's current Claude Code install:
+It is designed for a user-scope Claude Code install on macOS, Linux, or
+Windows:
 
 - Claude Code `2.1.175`
 - Sonnet daily driver: `claude-sonnet-4-6`
@@ -37,17 +38,55 @@ It is designed for Pedro's current Claude Code install:
   - Injects a short routing reminder for coding prompts so matching subagent descriptions steer the main agent before it starts scouting, fixing, or reviewing inline.
 - Launch helpers:
   - `bin/cc-sonnet`
+  - `bin/cc-sonnet.ps1`
+  - `bin/cc-sonnet.cmd`
   - `bin/cc-sonnet-1m`
+  - `bin/cc-sonnet-1m.ps1`
+  - `bin/cc-sonnet-1m.cmd`
   - `bin/cc-haiku`
+  - `bin/cc-haiku.ps1`
+  - `bin/cc-haiku.cmd`
   - `bin/cc-plan`
+  - `bin/cc-plan.ps1`
+  - `bin/cc-plan.cmd`
 
 The installer creates timestamped backups before touching `~/.claude/settings.json` or appending global instructions to `~/.claude/CLAUDE.md`.
 
 ## Install
 
+Prerequisites:
+
+- Node.js 20+
+- pnpm
+- Claude Code already installed and authenticated
+
+Optional:
+
+- Basic Memory Claude Code plugin and MCP, if you want the memory-backed
+  instructions to work
+- Superpowers Claude Code plugin, if you want the methodology workflows to load
+
+The installer writes to the normal user Claude config directory:
+
+- macOS/Linux: `~/.claude`
+- Windows PowerShell: `$env:USERPROFILE\.claude`
+- Override for any OS: set `CLAUDE_CONFIG_DIR`
+
+Install dependencies if needed:
+
+```bash
+pnpm install
+```
+
 Preview first:
 
 ```bash
+pnpm run install:dry
+```
+
+Windows PowerShell:
+
+```powershell
 pnpm run install:dry
 ```
 
@@ -57,11 +96,20 @@ Apply:
 pnpm run install
 ```
 
+Windows PowerShell:
+
+```powershell
+pnpm run install
+```
+
 Verify the installed files and settings without launching Claude Code:
 
 ```bash
 pnpm run verify
 ```
+
+`verify` treats missing optional plugins/MCP servers as warnings so a teammate
+can validate the core Sonnet/Haiku setup before adding those integrations.
 
 Verify the plain launch path with a small live Claude Code subscription smoke:
 
@@ -103,6 +151,30 @@ Run cheap one-shot Haiku tasks:
 ~/.claude/bin/cc-haiku -p "summarize this git diff"
 ```
 
+Windows PowerShell helper equivalents:
+
+```powershell
+& "$env:USERPROFILE\.claude\bin\cc-sonnet.ps1"
+& "$env:USERPROFILE\.claude\bin\cc-sonnet-1m.ps1"
+& "$env:USERPROFILE\.claude\bin\cc-plan.ps1"
+& "$env:USERPROFILE\.claude\bin\cc-haiku.ps1" -p "summarize this git diff"
+```
+
+If PowerShell blocks local scripts, run this once for the current user:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+Windows `cmd.exe` helper equivalents:
+
+```bat
+%USERPROFILE%\.claude\bin\cc-sonnet.cmd
+%USERPROFILE%\.claude\bin\cc-sonnet-1m.cmd
+%USERPROFILE%\.claude\bin\cc-plan.cmd
+%USERPROFILE%\.claude\bin\cc-haiku.cmd -p "summarize this git diff"
+```
+
 Inside Claude Code, invoke:
 
 ```text
@@ -115,6 +187,10 @@ That skill tells Claude to keep Sonnet on the main implementation path while pus
 
 DeepSWE is the primary benchmark harness in this repo. It uses Pier and keeps
 the DeepSWE corpus under ignored `benchmarks/deepswe/vendor/`.
+
+The benchmark shell scripts are intended for macOS/Linux or WSL because they
+call Bash, Docker-oriented Pier workflows, and macOS Keychain token extraction.
+The core Claude Code setup and installer are portable to native Windows.
 
 Run an oracle Docker smoke without spending Claude usage:
 

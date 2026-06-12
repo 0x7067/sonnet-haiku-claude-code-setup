@@ -1,0 +1,6 @@
+@echo off
+if not defined ANTHROPIC_DEFAULT_SONNET_MODEL set "ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4-6"
+if not defined ANTHROPIC_DEFAULT_HAIKU_MODEL set "ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5-20251001"
+if not defined CLAUDE_CODE_SUBAGENT_MODEL set "CLAUDE_CODE_SUBAGENT_MODEL=inherit"
+if not defined CLAUDE_CODE_EFFORT set "CLAUDE_CODE_EFFORT=low"
+claude --model sonnet --effort "%CLAUDE_CODE_EFFORT%" %*
