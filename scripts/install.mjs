@@ -132,7 +132,6 @@ export function mergeSettings(settings, template, options = {}) {
   next.enabledPlugins = { ...(next.enabledPlugins || {}) };
   for (const plugin of [
     "basic-memory@basicmachines-co",
-    "superpowers@claude-plugins-official",
     "code-simplifier@claude-plugins-official",
     "commit-commands@claude-plugins-official",
     "codex@openai-codex",
@@ -201,7 +200,7 @@ async function copyTree(srcDir, destDir) {
       await copyFile(src, dest);
       if (
         process.platform !== "win32"
-        && (dest.includes(`${path.sep}bin${path.sep}`) || dest.includes(`${path.sep}hooks${path.sep}`))
+        && dest.includes(`${path.sep}hooks${path.sep}`)
       ) {
         await chmod(dest, 0o755);
       }
@@ -245,7 +244,6 @@ async function main() {
 
   await copyTree(path.join(root, "agents"), path.join(claudeDir, "agents"));
   await copyTree(path.join(root, "skills"), path.join(claudeDir, "skills"));
-  await copyTree(path.join(root, "bin"), path.join(claudeDir, "bin"));
   await copyTree(path.join(root, "hooks"), path.join(claudeDir, "hooks"));
 
   if (dryRun) {

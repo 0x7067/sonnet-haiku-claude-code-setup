@@ -19,20 +19,6 @@ const expectedAgents = [
   "sonnet-task-architect.md",
   "sonnet-code-steward.md"
 ];
-const expectedBins = [
-  "cc-sonnet",
-  "cc-sonnet-1m",
-  "cc-haiku",
-  "cc-plan",
-  "cc-sonnet.ps1",
-  "cc-sonnet-1m.ps1",
-  "cc-haiku.ps1",
-  "cc-plan.ps1",
-  "cc-sonnet.cmd",
-  "cc-sonnet-1m.cmd",
-  "cc-haiku.cmd",
-  "cc-plan.cmd"
-];
 const expectedSkill = path.join(claudeDir, "skills", "sonnet-haiku-code", "SKILL.md");
 const expectedHook = path.join(claudeDir, "hooks", "sonnet-haiku-routing-reminder.mjs");
 const globalInstructionsPath = path.join(claudeDir, "CLAUDE.md");
@@ -130,9 +116,6 @@ async function main() {
       );
     }
   }
-  for (const fileName of expectedBins) {
-    check(existsSync(path.join(claudeDir, "bin", fileName)), `missing installed helper ${fileName}`);
-  }
   check(existsSync(expectedSkill), "missing installed sonnet-haiku-code skill");
   check(existsSync(expectedHook), "missing installed sonnet-haiku routing reminder hook");
 
@@ -169,10 +152,6 @@ async function main() {
   if (plugins.status === 0 && !(plugins.stdout || "").includes("basic-memory@basicmachines-co")) {
     warnings.push("basic-memory plugin not listed; install it separately if you want memory-backed workflows");
   }
-  if (plugins.status === 0 && !(plugins.stdout || "").includes("superpowers@claude-plugins-official")) {
-    warnings.push("superpowers plugin not listed; install it separately if you want the bundled methodology workflows");
-  }
-
   const mcp = run("claude", ["mcp", "list"], { timeout: 45000 });
   check(mcp.status === 0, "claude mcp list failed");
   if (mcp.status === 0 && !(mcp.stdout || "").includes("basic-memory")) {

@@ -23,19 +23,16 @@ Observed in `~/.claude/settings.json`:
 - `CLAUDE_CODE_NO_FLICKER`: `1`
 - `autoMemoryEnabled`: `true`
 - `autoDreamEnabled`: `true`
-- `enabledPlugins` includes Basic Memory, Superpowers, Codex, code-simplifier, commit-commands, deslop, and claude-hud
 
-## Existing Plugins
+## Shareable Plugin Baseline
 
-`claude plugin list` reported enabled user plugins:
+The installer enables only the shareable default plugins:
 
 - `basic-memory@basicmachines-co`
-- `claude-hud@claude-hud`
 - `code-simplifier@claude-plugins-official`
 - `codex@openai-codex`
 - `commit-commands@claude-plugins-official`
 - `deslop@vibe-tooling`
-- `superpowers@claude-plugins-official`
 
 ## Existing MCP Health
 

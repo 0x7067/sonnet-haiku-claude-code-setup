@@ -16,7 +16,7 @@ Make Claude Code efficient for day-to-day coding by keeping Sonnet as the defaul
 - The Opus and Fable aliases are deliberately mapped to `claude-sonnet-4-6` as an extra user-scope guard against accidental expensive-family routing.
 - `CLAUDE_CODE_SUBAGENT_MODEL=inherit` preserves each subagent's own `model:` frontmatter instead of forcing every subagent onto one model.
 - `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80` avoids premature compaction loops during subagent-heavy work while still leaving room for long sessions.
-- 1M Sonnet is opt-in through `cc-sonnet-1m`; it is not the default because Claude Code's docs say Sonnet 1M requires usage credits on subscription plans.
+- 1M Sonnet is not configured by this package; Claude Code's docs say Sonnet 1M can require usage credits on subscription plans.
 
 ## Agents
 

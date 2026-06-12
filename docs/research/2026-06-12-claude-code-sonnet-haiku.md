@@ -46,4 +46,4 @@ Default daily-driver routing should be:
 - Fallback chain: `sonnet`, then `haiku`, never Opus or Fable.
 - Subagents: Sonnet for implementation, review, verification, research, memory, infrastructure, and agent creation; Haiku for read-only scouting, log triage, diff summaries, and context compression.
 
-Sonnet 1M context is useful for oversized codebase sessions, but Claude Code's own docs say Sonnet 1M requires usage credits on subscription plans. This setup keeps it opt-in through `cc-sonnet-1m` instead of making it the daily default.
+Sonnet 1M context is useful for oversized codebase sessions, but Claude Code's own docs say Sonnet 1M requires usage credits on subscription plans. This setup does not configure a 1M launch path; users can opt into that separately if needed.

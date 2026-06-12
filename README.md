@@ -1,123 +1,52 @@
 # Sonnet/Haiku Claude Code Setup
 
-This bundle makes Claude Code run as a Sonnet-first daily coding environment with Haiku used for cheap, fast side work: codebase scouting, log triage, diff summaries, and quick print-mode tasks.
-
-It is designed for a user-scope Claude Code install on macOS, Linux, or
-Windows:
-
-- Claude Code `2.1.175`
-- Sonnet daily driver: `claude-sonnet-4-6`
-- Haiku fast path: `claude-haiku-4-5-20251001`
-- Subagent model behavior: `CLAUDE_CODE_SUBAGENT_MODEL=inherit`
+A small user-scope Claude Code setup that defaults coding work to Sonnet and
+uses Haiku for narrow support tasks such as repo scouting, log triage, context
+compression, and diff summaries.
 
 ## What It Installs
 
-- User-scope model controls in `~/.claude/settings.json`:
-  - `model=sonnet`
-  - `advisorModel=sonnet`
-  - `availableModels=["sonnet","haiku"]`
-  - `fallbackModel=["sonnet","haiku"]`
-  - `ANTHROPIC_MODEL=sonnet`
-  - `ANTHROPIC_DEFAULT_SONNET_MODEL=claude-sonnet-4-6`
-  - `ANTHROPIC_DEFAULT_HAIKU_MODEL=claude-haiku-4-5-20251001`
-  - `ANTHROPIC_DEFAULT_OPUS_MODEL=claude-sonnet-4-6`
-  - `ANTHROPIC_DEFAULT_FABLE_MODEL=claude-sonnet-4-6`
-  - `CLAUDE_CODE_SUBAGENT_MODEL=inherit`
-  - `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=80`
-- User-level agents:
-  - `haiku-codebase-scout`
-  - `haiku-log-triage`
-  - `haiku-diff-summarizer`
-  - `haiku-context-compressor`
-  - `sonnet-code-steward`
-  - `sonnet-task-architect`
-- User-level skill:
-  - `sonnet-haiku-code`
-- User prompt hook:
-  - `hooks/sonnet-haiku-routing-reminder.mjs`
-  - Injects a short routing reminder for coding prompts so matching subagent descriptions steer the main agent before it starts scouting, fixing, or reviewing inline.
-- Launch helpers:
-  - `bin/cc-sonnet`
-  - `bin/cc-sonnet.ps1`
-  - `bin/cc-sonnet.cmd`
-  - `bin/cc-sonnet-1m`
-  - `bin/cc-sonnet-1m.ps1`
-  - `bin/cc-sonnet-1m.cmd`
-  - `bin/cc-haiku`
-  - `bin/cc-haiku.ps1`
-  - `bin/cc-haiku.cmd`
-  - `bin/cc-plan`
-  - `bin/cc-plan.ps1`
-  - `bin/cc-plan.cmd`
+- `~/.claude/settings.json` model routing:
+  - startup model: `sonnet`
+  - available models: `sonnet`, `haiku`
+  - fallback models: `sonnet`, `haiku`
+  - Sonnet pin: `claude-sonnet-4-6`
+  - Haiku pin: `claude-haiku-4-5-20251001`
+- Claude Code agents under `~/.claude/agents`
+- the `sonnet-haiku-code` skill under `~/.claude/skills`
+- a prompt hook under `~/.claude/hooks`
+- a marked routing block in `~/.claude/CLAUDE.md`
 
-The installer creates timestamped backups before touching `~/.claude/settings.json` or appending global instructions to `~/.claude/CLAUDE.md`.
+The installer creates timestamped backups before changing
+`settings.json` or `CLAUDE.md`.
 
-## Install
-
-Prerequisites:
+## Requirements
 
 - Node.js 20+
 - pnpm
-- Claude Code already installed and authenticated
+- Claude Code installed and authenticated
 
-Optional:
+Optional: Basic Memory plugin and MCP if you want memory-backed instructions.
 
-- Basic Memory Claude Code plugin and MCP, if you want the memory-backed
-  instructions to work
-- Superpowers Claude Code plugin, if you want the methodology workflows to load
-
-The installer writes to the normal user Claude config directory:
-
-- macOS/Linux: `~/.claude`
-- Windows PowerShell: `$env:USERPROFILE\.claude`
-- Override for any OS: set `CLAUDE_CONFIG_DIR`
-
-Install dependencies if needed:
+## Install
 
 ```bash
 pnpm install
-```
-
-Preview first:
-
-```bash
 pnpm run install:dry
-```
-
-Windows PowerShell:
-
-```powershell
-pnpm run install:dry
-```
-
-Apply:
-
-```bash
 pnpm run install
-```
-
-Windows PowerShell:
-
-```powershell
-pnpm run install
-```
-
-Verify the installed files and settings without launching Claude Code:
-
-```bash
 pnpm run verify
 ```
 
-`verify` treats missing optional plugins/MCP servers as warnings so a teammate
-can validate the core Sonnet/Haiku setup before adding those integrations.
+Windows PowerShell uses the same commands.
 
-Verify the plain launch path with a small live Claude Code subscription smoke:
+By default, files install to:
 
-```bash
-pnpm run test:transparent
-```
+- macOS/Linux: `~/.claude`
+- Windows: `$env:USERPROFILE\.claude`
 
-## Daily Usage
+Set `CLAUDE_CONFIG_DIR` to install somewhere else.
+
+## Usage
 
 Start Claude Code normally:
 
@@ -125,102 +54,30 @@ Start Claude Code normally:
 claude
 ```
 
-The global `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, user agents, `sonnet-haiku-code` skill, and prompt-time routing reminder are loaded automatically. The normal launch path starts on Sonnet, keeps fallback inside Sonnet/Haiku, and leaves each subagent's frontmatter model in control.
-
-The helper commands are optional shortcuts, not required for daily use. Start an explicit Sonnet session:
-
-```bash
-~/.claude/bin/cc-sonnet
-```
-
-Start a large-context Sonnet session when the task justifies usage credits:
-
-```bash
-~/.claude/bin/cc-sonnet-1m
-```
-
-Start in plan mode on Sonnet with medium effort:
-
-```bash
-~/.claude/bin/cc-plan
-```
-
-Run cheap one-shot Haiku tasks:
-
-```bash
-~/.claude/bin/cc-haiku -p "summarize this git diff"
-```
-
-Windows PowerShell helper equivalents:
-
-```powershell
-& "$env:USERPROFILE\.claude\bin\cc-sonnet.ps1"
-& "$env:USERPROFILE\.claude\bin\cc-sonnet-1m.ps1"
-& "$env:USERPROFILE\.claude\bin\cc-plan.ps1"
-& "$env:USERPROFILE\.claude\bin\cc-haiku.ps1" -p "summarize this git diff"
-```
-
-If PowerShell blocks local scripts, run this once for the current user:
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-Windows `cmd.exe` helper equivalents:
-
-```bat
-%USERPROFILE%\.claude\bin\cc-sonnet.cmd
-%USERPROFILE%\.claude\bin\cc-sonnet-1m.cmd
-%USERPROFILE%\.claude\bin\cc-plan.cmd
-%USERPROFILE%\.claude\bin\cc-haiku.cmd -p "summarize this git diff"
-```
-
-Inside Claude Code, invoke:
+The installed settings and instructions handle Sonnet/Haiku routing. Inside
+Claude Code, you can also invoke:
 
 ```text
 /sonnet-haiku-code
 ```
 
-That skill tells Claude to keep Sonnet on the main implementation path while pushing read-only scouting, log triage, and diff summaries to Haiku agents.
+## Verify
+
+```bash
+pnpm run verify
+```
+
+`verify` checks the installed settings, agents, skill, hook, and global
+instructions. Missing optional Basic Memory integration is reported as a
+warning, not a failure.
+
+For a live launch smoke:
+
+```bash
+pnpm run test:transparent
+```
 
 ## Benchmarks
 
-DeepSWE is the primary benchmark harness in this repo. It uses Pier and keeps
-the DeepSWE corpus under ignored `benchmarks/deepswe/vendor/`.
-
-The benchmark shell scripts are intended for macOS/Linux or WSL because they
-call Bash, Docker-oriented Pier workflows, and macOS Keychain token extraction.
-The core Claude Code setup and installer are portable to native Windows.
-
-Run an oracle Docker smoke without spending Claude usage:
-
-```bash
-npm run deepswe:oracle
-```
-
-Run one bounded Claude Code subscription smoke through the Sonnet/Haiku wrapper:
-
-```bash
-npm run deepswe:smoke
-```
-
-The wrapper injects the installed global `~/.claude` agents, skills, prompt
-routing hook, model routing settings, and instructions into Pier's per-trial
-`CLAUDE_CONFIG_DIR`, so the benchmark exercises the same Sonnet/Haiku routing
-used by normal `claude` launches. Host-only UI, plugin, and memory toggles are
-stripped for benchmark containers. Terminal-Bench notes remain in
-`docs/terminal-bench.md` as secondary history.
-
-## Scope
-
-This is a personal global Claude Code setup. It installs under `~/.claude` and does not require admin permissions. Enterprise managed settings can enforce policy above user/project scope, but that is deliberately out of scope for this bundle.
-
-## Design Notes
-
-See:
-
-- `docs/current-audit.md`
-- `docs/design.md`
-- `docs/global-agent-routing.md`
-- `docs/research/2026-06-12-claude-code-sonnet-haiku.md`
-- `docs/verification.md`
+DeepSWE benchmark helpers live under `benchmarks/deepswe` and are intended for
+macOS/Linux or WSL. They are not required for the normal Claude Code setup.

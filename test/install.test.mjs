@@ -103,3 +103,15 @@ test("mergeSettings replaces stale HOME hook commands instead of duplicating the
 
   assert.deepEqual(commands, [buildHookCommand(claudeDir, path.win32)]);
 });
+
+test("mergeSettings enables only the shareable default plugins", () => {
+  const next = mergeSettings({}, {}, { claudeDir: "/tmp/.claude" });
+
+  assert.deepEqual(Object.keys(next.enabledPlugins).sort(), [
+    "basic-memory@basicmachines-co",
+    "code-simplifier@claude-plugins-official",
+    "codex@openai-codex",
+    "commit-commands@claude-plugins-official",
+    "deslop@vibe-tooling"
+  ]);
+});
