@@ -34,7 +34,7 @@ Use this workflow to keep Claude Code fast, cheap, and reliable for software wor
 
 ## Default Flow
 
-1. For non-trivial work, recall relevant memory first if Basic Memory is available.
+1. For non-trivial work, recall relevant memory first if available
 2. For hard or ambiguous work, use `sonnet-task-architect` to split the task into verifiable slices.
 3. Use `haiku-codebase-scout` for read-only orientation when the relevant files are not obvious.
 4. Use `haiku-context-compressor` when plans, logs, histories, or file inventories are too large for the main thread.
